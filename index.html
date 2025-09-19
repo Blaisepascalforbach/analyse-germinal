@@ -154,7 +154,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // ========== Configuration & Constantes ==========
     const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=';
-    const API_KEY = ""; // La clé est gérée par l'environnement d'exécution
+    const API_KEY = "AIzaSyAR8PxAPKqi2VN2ede9AwwWix_daTdGpzM";
     const synth = window.speechSynthesis;
     
     // ========== Initialisation des Éléments du DOM ==========
@@ -208,9 +208,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     ttsRateSlider.addEventListener('input', () => {
         rateValueSpan.textContent = `${parseFloat(ttsRateSlider.value).toFixed(1)}x`;
-        // Si la synthèse est en cours, l'arrêter et la relancer avec la nouvelle vitesse
         if (synth.speaking) {
-            const currentText = document.getElementById('text').textContent.trim(); // ou stocker le texte en cours
+            const currentText = document.getElementById('text').textContent.trim();
             synth.cancel();
             speak(currentText);
         }
@@ -249,6 +248,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ========== Logique de l'Assistant IA (Gemini) ==========
     async function callGemini(systemPrompt, userPrompt) {
+        if (!API_KEY || API_KEY === "COPIEZ-COLLEZ VOTRE VRAIE CLÉ API (qui commence par AIza...) ICI") {
+            return "Erreur : Clé API manquante. Veuillez modifier le fichier index.html pour ajouter votre clé API Google AI Studio.";
+        }
         try {
             const response = await fetch(`${API_URL}${API_KEY}`, {
                 method: 'POST',
@@ -273,8 +275,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleAIFeedback(questionElement) {
         const answer = questionElement.querySelector('.ans').value.trim();
+        const feedbackBox = questionElement.querySelector('.ai-feedback');
         if (!answer) {
-            const feedbackBox = questionElement.querySelector('.ai-feedback');
             feedbackBox.innerHTML = "Veuillez d'abord rédiger une réponse avant de demander une analyse.";
             feedbackBox.classList.add('show');
             return;
@@ -283,8 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const questionText = questionElement.querySelector('p').textContent;
         const nodeId = questionElement.dataset.node;
         const textNode = document.querySelector(`.node[data-node="${nodeId}"]`);
-        const feedbackBox = questionElement.querySelector('.ai-feedback');
-
+        
         feedbackBox.innerHTML = '<div class="flex items-center gap-2"><div class="loader"></div><span>Analyse en cours...</span></div>';
         feedbackBox.classList.add('show');
 
@@ -338,4 +339,3 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
-
