@@ -1,341 +1,127 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Germinal — Incipit : Analyse Littéraire Intelligente</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    :root{
-      --bg:#0f172a; --card:#1e293b; --muted:#334155; --text:#e2e8f0;
-      --accent:#22d3ee; --accent-focus: #67e8f9; --ok:#4ade80; --bad:#f87171;
-      --radius: 1rem;
-    }
-    body{ background-color: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
-    .card { background-color: var(--card); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius); transition: all 0.3s ease; }
-    .node { cursor: pointer; padding: 2px 4px; border-radius: 6px; transition: background-color 0.3s, box-shadow 0.3s; background-color: rgba(34, 211, 238, .1); border-bottom: 1px dashed rgba(34, 211, 238, .5); }
-    .node.focus { background-color: rgba(34,211,238,0.3); box-shadow: 0 0 0 2px var(--accent); }
-    .hint, .correction, .ai-feedback, .ai-explanation { transition: opacity 0.4s ease, max-height 0.4s ease, margin-top 0.4s ease; overflow: hidden; max-height: 0; opacity: 0; margin-top: 0; }
-    .hint.show, .correction.show, .ai-feedback.show, .ai-explanation.show { max-height: 500px; opacity: 1; margin-top: 0.75rem; }
-    .ai-feedback, .ai-explanation { background: linear-gradient(135deg, rgba(167, 139, 250, .1), rgba(167, 139, 250, .05)); border: 1px solid rgba(167, 139, 250, .3); padding: 0.75rem; border-radius: 0.75rem; font-size: 0.9em; }
-    .ai-feedback::before { content: '🤖 Assistant IA (Analyse de réponse)'; font-weight: 700; color: #c4b5fd; display: block; margin-bottom: 0.5rem; }
-    .ai-explanation::before { content: '✨ Explication IA'; font-weight: 700; color: #a5f3fc; display: block; margin-bottom: 0.5rem; }
-    .loader { width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: var(--accent); animation: spin 1s ease-in-out infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-  </style>
+    <meta charset="UTF-8">
+    <title>Vidéo Robson Square - Sous-titrée FR</title>
+    <style>
+        body { font-family: sans-serif; background: #222; color: white; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        h2 { margin-bottom: 10px; }
+        #video-container { position: relative; width: 640px; height: 360px; margin-bottom: 20px; }
+        #subtitle-box {
+            width: 600px;
+            min-height: 80px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #444;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            font-size: 18px;
+            line-height: 1.5;
+            color: #ffd700; /* Jaune pour la lisibilité */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .hint { font-size: 0.8em; color: #ccc; margin-top: 10px; }
+    </style>
 </head>
-<body class="antialiased">
-  <header class="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-sm border-b border-white/10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-400 to-purple-500 shadow-lg"></div>
-          <h1 class="text-xl md:text-2xl font-bold text-slate-100">Germinal <span class="text-cyan-400">/ Analyse Intelligente</span></h1>
-        </div>
-      </div>
-    </div>
-  </header>
+<body>
 
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- AVERTISSEMENT SUR L'UTILISATION LOCALE -->
-    <div class="card p-4 mb-6 bg-amber-500/10 border-amber-500/30">
-        <p class="font-bold text-amber-300">Note importante</p>
-        <p class="text-sm text-amber-200">Les fonctionnalités de l'IA (marquées par ✨ et 🤖) nécessitent une connexion Internet et ne fonctionneront pas si vous ouvrez ce fichier HTML directement depuis votre ordinateur. Pour une expérience complète, ce fichier doit être hébergé sur un serveur web (via GitHub Pages, Netlify, etc.).</p>
-    </div>
+    <h2>Traduction Française Synchronisée</h2>
 
-    <div class="mb-6">
-        <h2 class="text-lg font-semibold mb-2 text-slate-300">Votre Progression</h2>
-        <div class="w-full bg-slate-700 rounded-full h-4 relative">
-            <div id="progressBar" class="bg-gradient-to-r from-cyan-400 to-purple-500 h-4 rounded-full transition-all duration-500 text-center text-xs font-bold text-slate-900 flex items-center justify-center" style="width: 0%"></div>
-        </div>
-    </div>
+    <div id="player"></div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- COLONNE GAUCHE -->
-      <section class="space-y-6">
-        <div class="card p-6">
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-            <h2 class="text-xl font-bold text-slate-200">Texte à analyser</h2>
-            <!-- CONTRÔLES DE LECTURE VOCALE -->
-            <div class="p-3 bg-slate-800/50 rounded-lg w-full sm:w-auto">
-                <div class="flex items-center justify-between gap-4">
-                    <button id="playAll" class="px-3 py-1.5 text-sm font-semibold text-cyan-300 bg-cyan-900/50 hover:bg-cyan-800/50 rounded-full transition-colors">Écouter l'extrait</button>
-                    <button id="stopTts" class="px-3 py-1.5 text-sm font-semibold text-red-300 bg-red-900/50 hover:bg-red-800/50 rounded-full transition-colors">Stop</button>
-                </div>
-                <div class="flex items-center gap-2 mt-2">
-                    <label for="ttsRate" class="text-sm text-slate-400">Vitesse:</label>
-                    <input type="range" id="ttsRate" min="0.5" max="2" value="1" step="0.1" class="w-full">
-                    <span id="rateValue" class="text-sm font-mono text-slate-300 w-10 text-center">1.0x</span>
-                </div>
-            </div>
-          </div>
-          <article id="text" class="text-slate-300 space-y-2">
-             <div class="relative group p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
-                <p>
-                  <span class="node" data-node="N1">Dans la plaine rase, sous la nuit sans étoiles, d’une obscurité et d’une épaisseur d’encre,</span> un homme suivait seul la grande route de Marchiennes à Montsou, dix kilomètres de pavé coupant tout droit, à travers les champs de betteraves. Devant lui, il ne voyait même pas le sol noir, et il n’avait la sensation de l’immense horizon plat que par les souffles du vent de mars, des rafales larges comme sur une mer, glacées d’avoir balayé des lieues de marais et de terres nues.
-                </p>
-                <button class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity text-xs bg-slate-700/80 hover:bg-slate-600 px-2 py-1 rounded-full ai-explain-trigger">✨ Expliquer</button>
-                <div class="ai-explanation"></div>
-             </div>
-             <div class="relative group p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
-                <p>
-                  L’homme était parti de Marchiennes vers deux heures. <span class="node" data-node="N2">Il marchait d’un pas allongé, grelottant sous le coton aminci de sa veste et de son pantalon de velours. Un petit paquet, noué dans un mouchoir à carreaux, le gênait beaucoup ; et il le serrait contre ses flancs, tantôt d’un coude, tantôt de l’autre, pour glisser au fond de ses poches les deux mains à la fois, des mains gourdes que les lanières du vent d’est faisaient saigner.</span> Une seule idée occupait sa tête vide d’ouvrier sans travail et sans gîte, l’espoir que le froid serait moins vif après le lever du jour.
-                </p>
-                <button class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity text-xs bg-slate-700/80 hover:bg-slate-600 px-2 py-1 rounded-full ai-explain-trigger">✨ Expliquer</button>
-                <div class="ai-explanation"></div>
-             </div>
-             <div class="relative group p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
-                <p>
-                  Un chemin creux s’enfonçait. <span class="node" data-node="N3">Brusquement, à un coude du chemin, les feux reparurent près de lui, sans qu’il comprît davantage comment ils brûlaient si haut dans le ciel mort, pareils à des lunes fumeuses. Mais, au ras du sol, un autre spectacle venait de l’arrêter. C’était une masse lourde, un tas écrasé de constructions, d’où se dressait la silhouette d’une cheminée d’usine ; [...] de cette apparition fantastique, noyée de nuit et de fumée, une seule voix montait, la respiration grosse et longue d’un échappement de vapeur, qu’on ne voyait point.</span>
-                </p>
-                <button class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity text-xs bg-slate-700/80 hover:bg-slate-600 px-2 py-1 rounded-full ai-explain-trigger">✨ Expliquer</button>
-                <div class="ai-explanation"></div>
-             </div>
-          </article>
-        </div>
-
-        <div class="card p-6">
-            <h2 class="text-xl font-bold text-slate-200 mb-4">Exercices Guidés</h2>
-            <div id="exoContainer" class="space-y-6">
-                <div class="q" data-node="N1">
-                    <p class="font-semibold text-slate-300">Q1. (Nœud 1) Quels indices de temps et de météo renforcent la sensation d’immensité et d’hostilité ?</p>
-                    <textarea class="ans w-full bg-slate-800 rounded-md p-2 mt-2 border border-slate-600 focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400" data-id="ans-n1" placeholder="Rédigez votre analyse ici..."></textarea>
-                    <div class="flex items-center flex-wrap gap-2 mt-3">
-                        <button data-hint class="px-3 py-1.5 text-sm font-semibold text-cyan-300 bg-cyan-900/50 hover:bg-cyan-800/50 rounded-full transition-colors">Indice</button>
-                        <button data-correction class="px-3 py-1.5 text-sm font-semibold text-slate-300 bg-slate-600 hover:bg-slate-500 rounded-full transition-colors">Correction type</button>
-                        <button data-ai-feedback class="flex-grow justify-center px-3 py-1.5 text-sm font-semibold text-white bg-cyan-600 hover:bg-cyan-700 rounded-full transition-colors">✨ Analyser ma réponse</button>
-                    </div>
-                    <div class="hint text-sm text-slate-400 p-3 bg-slate-800/50 rounded-lg">Cherchez les mots liés à la <strong>nuit</strong>, au <strong>vent</strong> et à la comparaison avec la <strong>mer</strong>.</div>
-                    <div class="correction text-sm text-slate-300 p-3 bg-green-500/10 rounded-lg border border-green-500/30"><strong>Correction :</strong> L'obscurité totale (« nuit sans étoiles », « épaisseur d'encre »), le vent puissant et glacial (« souffles du vent de mars », « rafales larges comme sur une mer ») et le paysage vide (« plaine rase ») créent une ambiance hostile.</div>
-                    <div class="ai-feedback"></div>
-                </div>
-                <div class="q" data-node="N2">
-                    <p class="font-semibold text-slate-300">Q2. (Nœud 2) Qu’apprend-on sur la situation sociale du personnage ?</p>
-                    <textarea class="ans w-full bg-slate-800 rounded-md p-2 mt-2 border border-slate-600 focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400" data-id="ans-n2" placeholder="Rédigez votre analyse ici..."></textarea>
-                    <div class="flex items-center flex-wrap gap-2 mt-3">
-                        <button data-hint class="px-3 py-1.5 text-sm font-semibold text-cyan-300 bg-cyan-900/50 hover:bg-cyan-800/50 rounded-full transition-colors">Indice</button>
-                        <button data-correction class="px-3 py-1.5 text-sm font-semibold text-slate-300 bg-slate-600 hover:bg-slate-500 rounded-full transition-colors">Correction type</button>
-                        <button data-ai-feedback class="flex-grow justify-center px-3 py-1.5 text-sm font-semibold text-white bg-cyan-600 hover:bg-cyan-700 rounded-full transition-colors">✨ Analyser ma réponse</button>
-                    </div>
-                    <div class="hint text-sm text-slate-400 p-3 bg-slate-800/50 rounded-lg">Repérez l'expression « ouvrier sans travail et sans gîte » et analysez ses vêtements.</div>
-                    <div class="correction text-sm text-slate-300 p-3 bg-green-500/10 rounded-lg border border-green-500/30"><strong>Correction :</strong> C'est un « ouvrier sans travail et sans gîte », ce qui indique sa pauvreté. Ses vêtements sont usés (« coton aminci ») et il souffre du froid (« grelottant »), montrant sa grande précarité.</div>
-                    <div class="ai-feedback"></div>
-                </div>
-            </div>
-        </div>
-      </section>
-      <!-- COLONNE DROITE -->
-      <aside class="space-y-6">
-        <div class="card p-6">
-            <h3 class="font-bold text-lg mb-3">Notes & Didactique</h3>
-            <ul class="list-disc list-inside text-slate-400 space-y-2 text-sm">
-                <li><strong class="text-slate-300">Objectif :</strong> Guider l'élève dans une lecture active et structurée.</li>
-                <li><strong class="text-slate-300">Nœuds :</strong> Le texte est segmenté en unités de sens pour focaliser l'analyse.</li>
-                <li><strong class="text-slate-300">IA Pédagogique :</strong> L'assistant IA ne donne pas la réponse. Il évalue, explique, et questionne pour favoriser la métacognition.</li>
-            </ul>
-        </div>
-        <div class="card p-6">
-            <h3 class="font-bold text-lg mb-3 flex items-center gap-2">✨ Aller plus loin</h3>
-            <p class="text-slate-400 text-sm mb-4">Débloquez de nouvelles pistes de réflexion avec l'aide de l'IA.</p>
-            <button id="generateQuestionBtn" class="w-full text-white bg-purple-600 hover:bg-purple-700 font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors">
-                Générer une question d'analyse
-            </button>
-            <div id="newQuestionContainer" class="mt-4 p-4 bg-slate-800/50 rounded-lg" style="display: none;">
-                <p class="font-semibold text-purple-300">Piste de réflexion :</p>
-                <div id="newQuestionText" class="text-slate-200 mt-2"></div>
-            </div>
-        </div>
-      </aside>
-    </div>
-  </main>
-
-  <script>
-document.addEventListener('DOMContentLoaded', () => {
-    // ========== Configuration & Constantes ==========
-    const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=';
-    const API_KEY = "AIzaSyAR8PxAPKqi2VN2ede9AwwWix_daTdGpzM";
-    const synth = window.speechSynthesis;
+    <div id="subtitle-box">Les sous-titres apparaîtront ici une fois la vidéo lancée...</div>
     
-    // ========== Initialisation des Éléments du DOM ==========
-    const allQuestions = document.querySelectorAll('.q');
-    const nodes = document.querySelectorAll('.node');
-    const progressBar = document.getElementById('progressBar');
-    const explainTriggers = document.querySelectorAll('.ai-explain-trigger');
-    const generateQuestionBtn = document.getElementById('generateQuestionBtn');
-    const playAllBtn = document.getElementById('playAll');
-    const stopTtsBtn = document.getElementById('stopTts');
-    const ttsRateSlider = document.getElementById('ttsRate');
-    const rateValueSpan = document.getElementById('rateValue');
+    <p class="hint">Note : Si la vidéo ne démarre pas, cliquez dessus. Les sous-titres sont synchronisés automatiquement.</p>
 
-    // ========== Logique de Progression (Gamification) ==========
-    const totalTasks = allQuestions.length * 2 + explainTriggers.length; 
-    let completedTasks = 0;
+    <script>
+        // 1. Charge l'API IFrame Player API de manière asynchrone.
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-    function updateProgress() {
-        completedTasks = 0;
-        allQuestions.forEach(q => {
-            if (q.querySelector('.ans').value.trim() !== '') completedTasks++;
-            if (q.querySelector('.hint.show') || q.querySelector('.correction.show') || q.querySelector('.ai-feedback.show')) completedTasks++;
-        });
-        document.querySelectorAll('.ai-explanation.show').forEach(() => completedTasks++);
-        
-        const percentage = Math.round((completedTasks / totalTasks) * 100);
-        progressBar.style.width = `${percentage}%`;
-        progressBar.textContent = `${percentage}%`;
-    }
+        var player;
+        var subtitleBox = document.getElementById('subtitle-box');
+        var timer;
 
-    // ========== Synthèse Vocale (TTS) ==========
-    function speak(text) {
-        if (synth.speaking) {
-            synth.cancel();
-        }
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'fr-FR';
-        utterance.rate = parseFloat(ttsRateSlider.value);
-        utterance.onerror = (event) => console.error('Erreur de synthèse vocale:', event);
-        synth.speak(utterance);
-    }
+        // 2. Les données de sous-titres (Temps en secondes : Texte)
+        const subtitles = [
+            { start: 0, end: 5, text: "À 55 ans, Arthur Erickson est une superstar de l'architecture." },
+            { start: 5, end: 9, text: "L'un des joyaux du portefeuille de ce regretté architecte de Vancouver est cette rampe..." },
+            { start: 9, end: 14, text: "...qui zigzague à travers les marches de Robson Square, comme un sentier en lacet sur une montagne." },
+            { start: 14, end: 18, text: "Le consultant en accessibilité Arnold Cheng convient que c'est beau, mais il déteste ça." },
+            { start: 18, end: 22, text: "Quand vous combinez un escalier et une rampe, ils fonctionnent rarement bien ensemble," },
+            { start: 22, end: 26, text: "car vous avez deux éléments concurrents ici." },
+            { start: 26, end: 30, text: "Cheng affirme que le problème avec la rampe d'accès, c'est qu'elle n'est pas très accessible." },
+            { start: 30, end: 35, text: "Elle est si raide que descendre en fauteuil roulant ou avec une poussette peut être dangereux." },
+            { start: 35, end: 39, text: "Et pour la montée, je pense que c'est surtout une question d'endurance." },
+            { start: 39, end: 43, text: "Il m'a fallu beaucoup de force pour monter, alors imaginez quelqu'un de plus âgé..." },
+            { start: 43, end: 48, text: "...ou qui a moins de muscles ; il pourrait ne pas être capable de monter du tout." },
+            { start: 48, end: 52, text: "La rampe n'est pas la seule plainte de Cheng." },
+            { start: 52, end: 56, text: "Il peut être difficile de distinguer où finit une marche et où commence la suivante..." },
+            { start: 56, end: 60, text: "...car elles sont toutes de la même couleur, surtout si vous êtes malvoyant..." },
+            { start: 60, end: 64, text: "...et que le temps est couvert ou qu'il pleut. Cheng suggère de rendre la rampe moins raide," },
+            { start: 64, end: 68, text: "d'ajouter plus de mains courantes et de mettre des bandes de contraste de couleur..." },
+            { start: 68, end: 72, text: "...sur les marches pour améliorer la visibilité." },
+            { start: 72, end: 76, text: "Les admirateurs d'Erickson disent que les marches ont été construites selon les normes," },
+            { start: 76, end: 80, text: "et même il y a 40 ans, l'architecte avait l'accessibilité à l'esprit," },
+            { start: 80, end: 85, text: "car son père a perdu ses deux jambes pendant la Première Guerre mondiale." },
+            { start: 85, end: 90, text: "...un énorme handicap qui a évidemment eu un impact sur sa vie..." },
+            { start: 90, end: 94, text: "...et sa volonté de rendre les espaces publics accessibles." },
+            { start: 94, end: 99, text: "Lorsque l'architecte Jim Cheng sortait tout juste de l'université," },
+            { start: 99, end: 103, text: "il a travaillé sous la direction d'Erickson sur le Robson Square." },
+            { start: 103, end: 106, text: "Je suis toujours très fier de la vision d'Erickson." },
+            { start: 106, end: 110, text: "Il est ouvert à des changements mineurs, mais il veut protéger la vision d'Erickson." },
+            { start: 110, end: 115, text: "Peut-être est-ce acceptable de dire aux gens : « Hé, si vous n'êtes pas à l'aise avec ces rampes..." },
+            { start: 115, end: 120, text: "...il y a une option pour vous, prenez l'ascenseur ». Nous avons tous le choix." },
+            { start: 120, end: 125, text: "Tout changement apporté aux marches devrait être approuvé par la province." },
+            { start: 125, end: 129, text: "Cheng a donc ce message pour le gouvernement de la Colombie-Britannique :" },
+            { start: 129, end: 134, text: "Ce n'est pas parce qu'une chose est classée au patrimoine qu'elle ne peut pas être améliorée." },
+            { start: 134, end: 139, text: "La Grande Muraille de Chine est accessible car quelqu'un a eu la vision de la rendre accessible," },
+            { start: 139, end: 144, text: "...et ils n'ont pas enlevé grand-chose à l'ouvrage ; cela reste la Grande Muraille." },
+            { start: 144, end: 149, text: "Cheng sait que se battre pour changer un espace aussi célèbre est un défi de taille," },
+            { start: 149, end: 154, text: "...mais cela ne l'a jamais arrêté auparavant et cela ne l'arrêtera pas maintenant." },
+            { start: 154, end: 160, text: "Jesse Johnston CBC News Vancouver." }
+        ];
 
-    playAllBtn.addEventListener('click', () => {
-        const fullText = document.getElementById('text').textContent.trim();
-        speak(fullText);
-    });
-
-    stopTtsBtn.addEventListener('click', () => {
-        synth.cancel();
-    });
-
-    ttsRateSlider.addEventListener('input', () => {
-        rateValueSpan.textContent = `${parseFloat(ttsRateSlider.value).toFixed(1)}x`;
-        if (synth.speaking) {
-            const currentText = document.getElementById('text').textContent.trim();
-            synth.cancel();
-            speak(currentText);
-        }
-    });
-
-
-    // ========== Interactions de l'Interface Utilisateur ==========
-    nodes.forEach(node => {
-        node.addEventListener('click', () => {
-            const targetNodeId = node.dataset.node;
-            const targetQuestion = document.querySelector(`.q[data-node="${targetNodeId}"]`);
-            nodes.forEach(n => n.classList.remove('focus'));
-            node.classList.add('focus');
-            if (targetQuestion) {
-                targetQuestion.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        });
-    });
-
-    allQuestions.forEach(q => {
-        const hintBtn = q.querySelector('[data-hint]');
-        const correctionBtn = q.querySelector('[data-correction]');
-        const aiBtn = q.querySelector('[data-ai-feedback]');
-        const hintBox = q.querySelector('.hint');
-        const correctionBox = q.querySelector('.correction');
-        const answerTextarea = q.querySelector('.ans');
-
-        hintBtn.addEventListener('click', () => { hintBox.classList.toggle('show'); updateProgress(); });
-        correctionBtn.addEventListener('click', () => { correctionBox.classList.toggle('show'); updateProgress(); });
-        answerTextarea.addEventListener('input', updateProgress);
-        aiBtn.addEventListener('click', () => handleAIFeedback(q));
-    });
-    
-    explainTriggers.forEach(button => button.addEventListener('click', () => handleExplanation(button)));
-    generateQuestionBtn.addEventListener('click', handleNewQuestion);
-
-    // ========== Logique de l'Assistant IA (Gemini) ==========
-    async function callGemini(systemPrompt, userPrompt) {
-        if (!API_KEY || API_KEY === "COPIEZ-COLLEZ VOTRE VRAIE CLÉ API (qui commence par AIza...) ICI") {
-            return "Erreur : Clé API manquante. Veuillez modifier le fichier index.html pour ajouter votre clé API Google AI Studio.";
-        }
-        try {
-            const response = await fetch(`${API_URL}${API_KEY}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    systemInstruction: { parts: [{ text: systemPrompt }] },
-                    contents: [{ parts: [{ text: userPrompt }] }]
-                })
+        // 3. Création du lecteur vidéo
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '360',
+                width: '640',
+                videoId: 'Yv6izkxhAEA',
+                events: {
+                    'onStateChange': onPlayerStateChange
+                }
             });
-            if (!response.ok) throw new Error(`Erreur API: ${response.statusText}`);
-            const result = await response.json();
-            const candidate = result.candidates?.[0];
-            if (candidate && candidate.content?.parts?.[0]?.text) {
-                return candidate.content.parts[0].text.replace(/\n/g, '<br>');
+        }
+
+        // 4. Boucle de synchronisation
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.PLAYING) {
+                startSubtitleSync();
+            } else {
+                stopSubtitleSync();
             }
-        } catch (error) {
-            console.error("Erreur d'appel à l'API Gemini:", error);
-            return "L'assistant IA n'est pas disponible pour le moment. Vérifiez votre connexion ou que le fichier est bien sur un serveur.";
-        }
-        return "L'IA n'a pas pu générer de réponse. Veuillez réessayer.";
-    }
-
-    async function handleAIFeedback(questionElement) {
-        const answer = questionElement.querySelector('.ans').value.trim();
-        const feedbackBox = questionElement.querySelector('.ai-feedback');
-        if (!answer) {
-            feedbackBox.innerHTML = "Veuillez d'abord rédiger une réponse avant de demander une analyse.";
-            feedbackBox.classList.add('show');
-            return;
         }
 
-        const questionText = questionElement.querySelector('p').textContent;
-        const nodeId = questionElement.dataset.node;
-        const textNode = document.querySelector(`.node[data-node="${nodeId}"]`);
-        
-        feedbackBox.innerHTML = '<div class="flex items-center gap-2"><div class="loader"></div><span>Analyse en cours...</span></div>';
-        feedbackBox.classList.add('show');
-
-        const systemPrompt = `Tu es un assistant pédagogique spécialisé en littérature française. Ton ton est encourageant et précis. Règles: 1. Ne donne JAMAIS la réponse complète. 2. Ton feedback doit être concis (2-3 phrases). 3. Commence par valider un point positif dans la réponse. 4. Propose UN SEUL axe d'amélioration précis (penser à un champ lexical, une figure de style, etc.). 5. Termine par une question ouverte pour encourager à approfondir.`;
-        const userPrompt = `Extrait de "Germinal": "${textNode.textContent.trim()}"\nQuestion: "${questionText.trim()}"\nRéponse de l'élève: "${answer}"\nFournis un feedback constructif.`;
-        
-        feedbackBox.innerHTML = await callGemini(systemPrompt, userPrompt);
-        updateProgress();
-    }
-    
-    async function handleExplanation(button) {
-        const parent = button.closest('.group');
-        const explanationBox = parent.querySelector('.ai-explanation');
-        const node = parent.querySelector('.node');
-
-        if (explanationBox.classList.contains('show')) {
-            explanationBox.classList.remove('show');
-            return;
+        function startSubtitleSync() {
+            timer = setInterval(function() {
+                var currentTime = player.getCurrentTime();
+                var currentSub = subtitles.find(sub => currentTime >= sub.start && currentTime < sub.end);
+                
+                if (currentSub) {
+                    subtitleBox.innerHTML = currentSub.text;
+                } else {
+                    // Ne rien effacer pour laisser le dernier texte, ou mettre "..."
+                    // subtitleBox.innerHTML = ""; 
+                }
+            }, 500); // Vérifie toutes les 0.5 secondes
         }
 
-        explanationBox.innerHTML = '<div class="flex items-center gap-2"><div class="loader"></div><span>Chargement...</span></div>';
-        explanationBox.classList.add('show');
-        
-        const systemPrompt = `Tu es un professeur de français. Explique le passage suivant de manière simple, claire et concise (2-3 phrases) pour un élève de seconde. Mets en évidence l'élément le plus important (l'ambiance, une description, une action) sans trop en dire.`;
-        const userPrompt = `Explique ce passage : "${node.textContent.trim()}"`;
-
-        explanationBox.innerHTML = await callGemini(systemPrompt, userPrompt);
-        updateProgress();
-    }
-
-    async function handleNewQuestion() {
-        const container = document.getElementById('newQuestionContainer');
-        const textBox = document.getElementById('newQuestionText');
-        
-        generateQuestionBtn.disabled = true;
-        generateQuestionBtn.innerHTML = '<div class="flex items-center justify-center gap-2"><div class="loader"></div><span>Génération...</span></div>';
-        container.style.display = 'block';
-
-        const fullText = document.getElementById('text').textContent.trim().replace(/\s+/g, ' ');
-        const systemPrompt = `Tu es un concepteur de sujets de baccalauréat de français. Génère une seule question d'analyse complexe et ouverte qui porte sur l'ensemble de cet extrait de Germinal. La question doit inciter à une réflexion sur le style de Zola, les thèmes abordés ou la construction de la scène. Ne la préface pas avec des phrases comme 'Voici une question'.`;
-        const userPrompt = `Génère une question d'analyse pour cet extrait : "${fullText}"`;
-
-        textBox.innerHTML = await callGemini(systemPrompt, userPrompt);
-        generateQuestionBtn.disabled = false;
-        generateQuestionBtn.innerHTML = "Générer une autre question";
-    }
-    
-    // Initialisation
-    updateProgress();
-});
-  </script>
+        function stopSubtitleSync() {
+            clearInterval(timer);
+        }
+    </script>
 </body>
 </html>
